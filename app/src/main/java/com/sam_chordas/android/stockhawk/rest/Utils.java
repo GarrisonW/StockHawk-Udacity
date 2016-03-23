@@ -3,12 +3,20 @@ package com.sam_chordas.android.stockhawk.rest;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,10 +27,14 @@ import org.json.JSONObject;
  */
 public class Utils {
 
-  private static String LOG_TAG = Utils.class.getSimpleName();
+    private static String LOG_TAG = Utils.class.getSimpleName();
 
     private static Context mContext;
     public static boolean showPercent = true;
+
+    public static final int NETWORK_STATUS_OK = 0;
+    public static final int NETWORK_STATUS_UNAVAILABLE = 1;
+    public static final int NETWORK_STATUS_UNKNOWN = 2;
 
     public static ArrayList quoteJsonToContentVals(Context context, String JSON) {
 
@@ -65,12 +77,12 @@ public class Utils {
         return batchOperations;
     }
 
-        public static String truncateBidPrice(String bidPrice){
+    public static String truncateBidPrice(String bidPrice) {
         bidPrice = String.format("%.2f", Float.parseFloat(bidPrice));
         return bidPrice;
-        }
+    }
 
-        public static String truncateChange(String change, boolean isPercentChange){
+    public static String truncateChange(String change, boolean isPercentChange) {
         String weight = change.substring(0,1);
         String ampersand = "";
         if (isPercentChange){
@@ -85,9 +97,9 @@ public class Utils {
         changeBuffer.append(ampersand);
         change = changeBuffer.toString();
         return change;
-        }
+    }
 
-        public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject){
+    public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject) {
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 QuoteProvider.Quotes.CONTENT_URI);
         try {
@@ -107,12 +119,34 @@ public class Utils {
           e.printStackTrace();
         }
         return builder.build();
-        }
+    }
 
-        private static void sendBroadcastMessage(String message) {
+    private static void sendBroadcastMessage(String message) {
             Intent intent = new Intent(mContext.getString(R.string.broadcast_stock_search));
             // You can also include some extra data.
             intent.putExtra(mContext.getString(R.string.broadcast_stock_search_message), message);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
+    public static boolean checkNetworkState(Context context){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            setNetworkStatus(context, NETWORK_STATUS_OK);
+            return true;
         }
+        else {
+            setNetworkStatus(context, NETWORK_STATUS_UNAVAILABLE);
+            return false;
+        }
+    }
+    private static void setNetworkStatus(Context context, int status) {
+
+        Log.v(LOG_TAG, "SETTING STATUS");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(context.getString(R.string.prefs_network_status), status);
+        editor.apply();
+    }
 }

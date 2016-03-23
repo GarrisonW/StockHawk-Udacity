@@ -4,9 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -21,6 +24,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.URLEncoder;
 
 /**
@@ -30,7 +35,9 @@ import java.net.URLEncoder;
  */
 public class StockTaskService extends GcmTaskService{
 
-  private String LOG_TAG = StockTaskService.class.getSimpleName();
+  private static String LOG_TAG = StockTaskService.class.getSimpleName();
+
+
 
   private OkHttpClient client = new OkHttpClient();
   private Context mContext;
@@ -47,8 +54,11 @@ public class StockTaskService extends GcmTaskService{
         .url(url)
         .build();
 
-    Response response = client.newCall(request).execute();
-    return response.body().string();
+      if (Utils.checkNetworkState(mContext)) {
+          Response response = client.newCall(request).execute();
+          return response.body().string();
+      }
+      return null;
   }
 
   @Override
@@ -122,24 +132,35 @@ public class StockTaskService extends GcmTaskService{
       urlString = urlStringBuilder.toString();
       try {
         getResponse = fetchData(urlString);
-        result = GcmNetworkManager.RESULT_SUCCESS;
-        try {
-          ContentValues contentValues = new ContentValues();
-          // update ISCURRENT to 0 (false) so new data is current
-          if (isUpdate){
-            contentValues.put(QuoteColumns.ISCURRENT, 0);
-            mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues, null, null);
-          }
-          mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY, Utils.quoteJsonToContentVals(mContext, getResponse));
-        }
-        catch (RemoteException | OperationApplicationException e){
-          Log.e(LOG_TAG, "Error applying batch insert", e);
+        if (getResponse != null) {
+            result = GcmNetworkManager.RESULT_SUCCESS;
+            try {
+                ContentValues contentValues = new ContentValues();
+                // update ISCURRENT to 0 (false) so new data is current
+                if (isUpdate) {
+                    contentValues.put(QuoteColumns.ISCURRENT, 0);
+                    mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues, null, null);
+                }
+                mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY, Utils.quoteJsonToContentVals(mContext, getResponse));
+            } catch (RemoteException | OperationApplicationException e) {
+                Log.e(LOG_TAG, "Error applying batch insert", e);
+            }
         }
       } catch (IOException e){
         e.printStackTrace();
       }
     }
+      else
+    Log.v(LOG_TAG, "NO Network avaialble this day....");
 
     return result;
+  }
+
+  private static void setNetworkStatus(Context context, int status) {
+Log.v(LOG_TAG, "SETTING STATUS");
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putInt(context.getString(R.string.prefs_network_status), status);
+    editor.apply();
   }
 }

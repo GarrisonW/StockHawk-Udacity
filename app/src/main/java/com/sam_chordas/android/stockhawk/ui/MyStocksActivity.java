@@ -7,9 +7,11 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -62,91 +64,86 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
       @Override
       protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = this;
+            super.onCreate(savedInstanceState);
+            mContext = this;
 
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
-                  new IntentFilter(mContext.getString(R.string.broadcast_stock_search)));
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
+                    new IntentFilter(mContext.getString(R.string.broadcast_stock_search)));
 
-        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        isConnected = activeNetwork != null &&
-            activeNetwork.isConnectedOrConnecting();
-        setContentView(R.layout.activity_my_stocks);
-        // The intent service is for executing immediate pulls from the Yahoo API
-        // GCMTaskService can only schedule tasks, they cannot execute immediately
-        mServiceIntent = new Intent(this, StockIntentService.class);
-        if (savedInstanceState == null){
-          // Run the initialize task service so that some stocks appear upon an empty database
-          mServiceIntent.putExtra("tag", "init");
-          if (isConnected){
-            startService(mServiceIntent);
-          } else{
-            networkToast();
-          }
-        }
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-
-        mCursorAdapter = new QuoteCursorAdapter(this, null);
-        recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                new RecyclerViewItemClickListener.OnItemClickListener() {
-                  @Override public void onItemClick(View v, int position) {
-                    //TODO:
-                    // do something on item click
-                  }
-                }));
-        recyclerView.setAdapter(mCursorAdapter);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.attachToRecyclerView(recyclerView);
-        fab.setOnClickListener(new View.OnClickListener() {
-          @Override public void onClick(View v) {
-            if (isConnected){
-              new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
-                  .content(R.string.content_test)
-                  .inputType(InputType.TYPE_CLASS_TEXT)
-                  .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                    @Override public void onInput(MaterialDialog dialog, CharSequence input) {
-
-                      // On FAB click, receive user input. Make sure the stock doesn't already exist
-                      // in the DB and proceed accordingly
-                      Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
-                          new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
-                          new String[] { input.toString() }, null);
-                      if (c.getCount() != 0) {
-                        Toast toast =
-                            Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
-                                Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-                        toast.show();
-                        return;
-                      } else {
-                        // Add the stock to DB
-                        mServiceIntent.putExtra("tag", "add");
-                        mServiceIntent.putExtra("symbol", input.toString());
-    Log.v(LOG_TAG, "BEFORE SERVICE START");
-                        startService(mServiceIntent);
-    Log.v(LOG_TAG, "AFTER SERVICE START");
-                      }
-                    }
-                  })
-                  .show();
-            } else {
-              networkToast();
+            setContentView(R.layout.activity_my_stocks);
+            // The intent service is for executing immediate pulls from the Yahoo API
+            // GCMTaskService can only schedule tasks, they cannot execute immediately
+            mServiceIntent = new Intent(this, StockIntentService.class);
+            if (savedInstanceState == null){
+              // Run the initialize task service so that some stocks appear upon an empty database
+              mServiceIntent.putExtra("tag", "init");
+              startService(mServiceIntent);
             }
 
-          }
-        });
+            isConnected = Utils.checkNetworkState(mContext);
+
+            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+
+            mCursorAdapter = new QuoteCursorAdapter(this, null);
+            recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                    new RecyclerViewItemClickListener.OnItemClickListener() {
+                      @Override public void onItemClick(View v, int position) {
+                        //TODO:
+                        // do something on item click
+                      }
+                    }));
+            recyclerView.setAdapter(mCursorAdapter);
+
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            if (isConnected) {
+Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
+                fab.setVisibility(FloatingActionButton.VISIBLE);
+                fab.attachToRecyclerView(recyclerView);
+                fab.setOnClickListener(new View.OnClickListener() {
+                  @Override public void onClick(View v)  {
+                      new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
+                              .content(R.string.content_test)
+                              .inputType(InputType.TYPE_CLASS_TEXT)
+                              .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                                  @Override
+                                  public void onInput(MaterialDialog dialog, CharSequence input) {
+
+                                      // On FAB click, receive user input. Make sure the stock doesn't already exist
+                                      // in the DB and proceed accordingly
+                                      Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
+                                              new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
+                                              new String[]{input.toString()}, null);
+                                      if (c.getCount() != 0) {
+                                          Toast toast =
+                                                  Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                                                          Toast.LENGTH_LONG);
+                                          toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+                                          toast.show();
+                                          return;
+                                      } else {
+                                          // Add the stock to DB
+                                          mServiceIntent.putExtra("tag", "add");
+                                          mServiceIntent.putExtra("symbol", input.toString());
+                                          startService(mServiceIntent);
+                                      }
+                                  }
+                              })
+                              .show();
+                  }
+                });
+            }
+            else {
+                fab.setVisibility(FloatingActionButton.INVISIBLE);
+            }
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 
         mTitle = getTitle();
-        if (isConnected){
+        if (isConnected) {
           long period = 3600L;
           long flex = 10L;
           String periodicTag = "periodic";
@@ -165,18 +162,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
           // are updated.
           GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
-      }
+    }
 
-
-      @Override
-      public void onResume() {
-        super.onResume();
-        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
-      }
-
-      public void networkToast(){
+    public void networkToast(){
         Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
-      }
+    }
 
       public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
@@ -224,12 +214,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             null);
       }
 
-      @Override
-      public void onLoadFinished(Loader<Cursor> loader, Cursor data){
-        mCursorAdapter.swapCursor(data);
-        mCursor = data;
-      }
-
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data){
+      mCursorAdapter.swapCursor(data);
+      mCursor = data;
+    }
 
     @Override
     protected void onDestroy() {
@@ -240,10 +229,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     private BroadcastReceiver mStockLoadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             String message = intent.getStringExtra(mContext.getString(R.string.broadcast_stock_search_message));
             Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
-
         }
     };
 

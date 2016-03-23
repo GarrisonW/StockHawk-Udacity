@@ -17,4 +17,6 @@
   <string name="broadcast_stock_search">com.sam.chordas.android.stockhawk</string>
   <string name="broadcast_stock_search_message">broadcast_stock_message</string>
 
+  <string name="prefs_network_status">prefs_network_status</string>
+
 </resources>
