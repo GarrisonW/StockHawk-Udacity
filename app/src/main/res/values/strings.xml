@@ -12,11 +12,16 @@
   <string name="widget_title">Today\'s Market</string>
   <string name="network_toast">Uh-oh! This app requires an internet connection</string>
 
+  <string name="no_network">Network Unavailable</string>
+  <string name="last_update">Last updated at</string>
+
   <string name="error_stock_symbol_not_found">Stock symbol not found</string>
 
   <string name="broadcast_stock_search">com.sam.chordas.android.stockhawk</string>
   <string name="broadcast_stock_search_message">broadcast_stock_message</string>
 
   <string name="prefs_network_status">prefs_network_status</string>
+  <string name="pref_time_hour">pref_time_hour</string>
+  <string name="pref_time_min">pref_time_min</string>
 
 </resources>

@@ -25,6 +25,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.sam_chordas.android.stockhawk.R;
@@ -40,6 +41,8 @@ import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
+
+import java.util.Set;
 
 public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -60,6 +63,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
       private QuoteCursorAdapter mCursorAdapter;
       private Context mContext;
       private Cursor mCursor;
+
+      public TextView mNetworkStatusTextView;
+      public TextView mStatusTextView;
       boolean isConnected;
 
       @Override
@@ -81,6 +87,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             }
 
             isConnected = Utils.checkNetworkState(mContext);
+
+            mNetworkStatusTextView = (TextView) findViewById(R.id.textview_net_status);
+            mStatusTextView = (TextView) findViewById(R.id.textview_status);
+            setStatusText();
+
 
             RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -239,4 +250,30 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
         mCursorAdapter.swapCursor(null);
       }
 
+
+    private void setStatusText() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String theClock = "";
+        int hour = 0;
+        int min = 0;
+        String minute = "00";
+
+        if (sharedPreferences != null) {
+            Log.v(LOG_TAG, "HERE");
+            hour = sharedPreferences.getInt(getString(R.string.pref_time_hour), 0);
+            min = sharedPreferences.getInt(getString(R.string.pref_time_min), 0);
+            minute = String.valueOf(min);
+            if (min < 10)
+                minute = "0" + minute;
+        }
+        theClock = hour + ":" + minute;
+
+        String lastUpdated = getString(R.string.last_update);
+
+        if (isConnected) {
+            mNetworkStatusTextView.setVisibility(TextView.INVISIBLE);
+        }
+        mStatusTextView.setText(lastUpdated + " " + theClock);
+    }
 }

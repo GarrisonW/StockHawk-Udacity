@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URLEncoder;
+import java.util.Calendar;
 
 /**
  * Created by sam_chordas on 9/30/15.
@@ -142,6 +143,9 @@ public class StockTaskService extends GcmTaskService{
                     mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues, null, null);
                 }
                 mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY, Utils.quoteJsonToContentVals(mContext, getResponse));
+
+                setTimeStamp(mContext);
+
             } catch (RemoteException | OperationApplicationException e) {
                 Log.e(LOG_TAG, "Error applying batch insert", e);
             }
@@ -150,17 +154,22 @@ public class StockTaskService extends GcmTaskService{
         e.printStackTrace();
       }
     }
-      else
-    Log.v(LOG_TAG, "NO Network avaialble this day....");
 
     return result;
   }
 
-  private static void setNetworkStatus(Context context, int status) {
-Log.v(LOG_TAG, "SETTING STATUS");
+  private static void setTimeStamp(Context context) {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putInt(context.getString(R.string.prefs_network_status), status);
+
+    Calendar calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+    int min = calendar.get(Calendar.MINUTE);
+
+    editor.putInt(context.getString(R.string.pref_time_hour), hour);
+    editor.putInt(context.getString(R.string.pref_time_min), min);
+
     editor.apply();
   }
+
 }
