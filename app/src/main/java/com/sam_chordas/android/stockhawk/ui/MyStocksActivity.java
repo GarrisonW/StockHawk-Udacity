@@ -70,49 +70,50 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
       @Override
       protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            mContext = this;
+          super.onCreate(savedInstanceState);
+          mContext = this;
 
-            LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
-                    new IntentFilter(mContext.getString(R.string.broadcast_stock_search)));
+          LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
+                new IntentFilter(mContext.getString(R.string.broadcast_stock_search)));
 
-            setContentView(R.layout.activity_my_stocks);
-            // The intent service is for executing immediate pulls from the Yahoo API
-            // GCMTaskService can only schedule tasks, they cannot execute immediately
-            mServiceIntent = new Intent(this, StockIntentService.class);
-            if (savedInstanceState == null){
-              // Run the initialize task service so that some stocks appear upon an empty database
-              mServiceIntent.putExtra("tag", "init");
-              startService(mServiceIntent);
-            }
+          setContentView(R.layout.activity_my_stocks);
+          // The intent service is for executing immediate pulls from the Yahoo API
+          // GCMTaskService can only schedule tasks, they cannot execute immediately
+          mServiceIntent = new Intent(this, StockIntentService.class);
+          if (savedInstanceState == null){
+            // Run the initialize task service so that some stocks appear upon an empty database
+            mServiceIntent.putExtra("tag", "init");
+            startService(mServiceIntent);
+          }
 
-            isConnected = Utils.checkNetworkState(mContext);
+          isConnected = Utils.checkNetworkState(mContext);
 
-            mNetworkStatusTextView = (TextView) findViewById(R.id.textview_net_status);
-            mStatusTextView = (TextView) findViewById(R.id.textview_status);
-            setStatusText();
+          mNetworkStatusTextView = (TextView) findViewById(R.id.textview_net_status);
+          mStatusTextView = (TextView) findViewById(R.id.textview_status);
+          setStatusText();
 
+          RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+          recyclerView.setLayoutManager(new LinearLayoutManager(this));
+          getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
-            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-
-            mCursorAdapter = new QuoteCursorAdapter(this, null);
-            recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                    new RecyclerViewItemClickListener.OnItemClickListener() {
-                      @Override public void onItemClick(View v, int position) {
-                        //TODO:
-                        // do something on item click
+          mCursorAdapter = new QuoteCursorAdapter(this, null);
+          recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                  new RecyclerViewItemClickListener.OnItemClickListener() {
+                      @Override
+                      public void onItemClick(View v, int position) {
+                          //TODO:
+                          // do something on item click
                       }
-                    }));
-            recyclerView.setAdapter(mCursorAdapter);
+                  }));
+          recyclerView.setAdapter(mCursorAdapter);
 
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-            if (isConnected) {
+          FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+          if (isConnected) {
 Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
-                fab.setVisibility(FloatingActionButton.VISIBLE);
-                fab.attachToRecyclerView(recyclerView);
-                fab.setOnClickListener(new View.OnClickListener() {
+              fab.attachToRecyclerView(recyclerView);
+              fab.setVisibility(FloatingActionButton.VISIBLE);
+              fab.setOnClickListener(new View.OnClickListener() {
                   @Override public void onClick(View v)  {
                       new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
                               .content(R.string.content_test)
@@ -142,7 +143,7 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
                                   }
                               })
                               .show();
-                  }
+                }
                 });
             }
             else {
@@ -173,10 +174,6 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
           // are updated.
           GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
-    }
-
-    public void networkToast(){
-        Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
     }
 
       public void restoreActionBar() {
@@ -276,4 +273,5 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
         }
         mStatusTextView.setText(lastUpdated + " " + theClock);
     }
+
 }

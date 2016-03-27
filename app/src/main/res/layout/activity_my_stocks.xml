@@ -1,31 +1,30 @@
-
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/textview_net_status"
+        style="@style/StatusTextStyle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:text="@string/no_network"
+        android:gravity="center"
+        />
 
-        <TextView
-            android:id="@+id/textview_net_status"
-            style="@style/StatusTextStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/no_network"
-            android:gravity="center"
-            />
+    <TextView
+        android:id="@+id/textview_status"
+        style="@style/StatusTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        />
 
-        <TextView
-            android:id="@+id/textview_status"
-            style="@style/StatusTextStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -37,7 +36,7 @@
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_white_24dp"
             fab:fab_colorNormal="@color/material_blue_500"
@@ -48,6 +47,6 @@
             fab:layout_anchor="recycler_view"
             fab:layout_anchorGravity="bottom | end"/>
 
-    </LinearLayout>
+    </FrameLayout>
+</LinearLayout>
 
-</FrameLayout>
