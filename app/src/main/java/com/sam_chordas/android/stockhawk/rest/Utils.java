@@ -65,8 +65,13 @@ public class Utils {
               resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
               if (resultsArray != null && resultsArray.length() != 0) {
                 for (int i = 0; i < resultsArray.length(); i++) {
-                  jsonObject = resultsArray.getJSONObject(i);
-                  batchOperations.add(buildBatchOperation(jsonObject));
+                    jsonObject = resultsArray.getJSONObject(i);
+                    if (jsonObject.getString("Ask") == "null") {
+                        sendBroadcastMessage(mContext.getString(R.string.error_stock_symbol_not_found));
+                        break;
+                    }
+                    else
+                        batchOperations.add(buildBatchOperation(jsonObject));
                 }
               }
             }

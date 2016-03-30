@@ -47,8 +47,6 @@ import java.util.Set;
 public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
       private static String LOG_TAG = MyStocksActivity.class.getSimpleName();
-
-
         /**
          * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
          */
@@ -110,7 +108,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
           FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
           if (isConnected) {
-Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
               fab.attachToRecyclerView(recyclerView);
               fab.setVisibility(FloatingActionButton.VISIBLE);
               fab.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +126,7 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
                                               new String[]{input.toString()}, null);
                                       if (c.getCount() != 0) {
                                           Toast toast =
-                                                  Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                                                  Toast.makeText(MyStocksActivity.this, R.string.error_stock_symbol_already_listed,
                                                           Toast.LENGTH_LONG);
                                           toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                                           toast.show();
@@ -257,7 +254,6 @@ Log.v(LOG_TAG, "CONNECTED IN ACTIVITY");
         String minute = "00";
 
         if (sharedPreferences != null) {
-            Log.v(LOG_TAG, "HERE");
             hour = sharedPreferences.getInt(getString(R.string.pref_time_hour), 0);
             min = sharedPreferences.getInt(getString(R.string.pref_time_min), 0);
             minute = String.valueOf(min);

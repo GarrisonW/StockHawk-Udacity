@@ -1,27 +1,41 @@
-<resources>
-  <string name="app_name">Stock Hawk</string>
+<resources xmlns:xliff="http://schemas.android.com/apk/res/android">
 
-  <string name="action_example">Example action</string>
+  <!-- NO TRANSLATION Application Name -->
+  <string name="app_name"><xliff:g>Stock Hawk</xliff:g></string>
 
+  <!-- MENU ITEM Settings -->
   <string name="action_settings">Settings</string>
+  <!-- TITLE Action bar change units -->
   <string name="action_change_units">Change Units</string>
+  <!-- TITLE Add (search for) stock symbol dialog -->
   <string name="symbol_search">Symbol Search</string>
+  <!-- TEXT Text for stock search dialog -->
   <string name="content_test">Search for a Stock Symbol</string>
+  <!-- DIALOG INPUT TEXT HINT Text for input text field  -->
   <string name="input_hint">FB</string>
+  <!-- DIALOG INPUT TEXT PREFILL Text for input text field  -->
   <string name="input_prefill"></string>
-  <string name="widget_title">Today\'s Market</string>
-  <string name="network_toast">Uh-oh! This app requires an internet connection</string>
 
+  <!-- WIDGET TITLE -->
+  <string name="widget_title">Today\'s Market</string>
+
+  <!-- MAIN SCREEN Status messages for network availability and last stock update -->
   <string name="no_network">Network Unavailable</string>
   <string name="last_update">Last updated at</string>
 
+  <!-- ERROR MESSAGE toast when stock symbol not found -->
   <string name="error_stock_symbol_not_found">Stock symbol not found</string>
 
-  <string name="broadcast_stock_search">com.sam.chordas.android.stockhawk</string>
-  <string name="broadcast_stock_search_message">broadcast_stock_message</string>
+  <!-- ERROR MESSAGE Adding a stock that was already in the users list of stocks -->
+  <string name="error_stock_symbol_already_listed">This stock is already saved!"</string>
 
-  <string name="prefs_network_status">prefs_network_status</string>
-  <string name="pref_time_hour">pref_time_hour</string>
-  <string name="pref_time_min">pref_time_min</string>
+  <!-- NO TRANSLATION Local Broadcast identification tags -->
+  <string name="broadcast_stock_search"><xliff:g id="search_broadcast_id">com.sam.chordas.android.stockhawk</xliff:g></string>
+  <string name="broadcast_stock_search_message"><xliff:g id="search_result_broadcast_meassage_id">broadcast_stock_message</xliff:g></string>
+
+  <!-- NO TRANSLATION Preference ID tags  -->
+  <string name="prefs_network_status"><xliff:g id="preference_id_for_network_status">prefs_network_status</xliff:g></string>
+  <string name="pref_time_hour"><xliff:g id="preference_id_for_last_update_hour">pref_time_hour</xliff:g></string>
+  <string name="pref_time_min"><xliff:g id="preference_id_for_last_update_min">vpref_time_min</xliff:g></string>
 
 </resources>
