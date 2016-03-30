@@ -50,6 +50,7 @@ public class StockTaskService extends GcmTaskService{
   public StockTaskService(Context context){
     mContext = context;
   }
+
   String fetchData(String url) throws IOException{
     Request request = new Request.Builder()
         .url(url)
