@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 
 /**
@@ -52,14 +55,25 @@ public class StockTaskService extends GcmTaskService{
   }
 
   String fetchData(String url) throws IOException{
-    Request request = new Request.Builder()
-        .url(url)
-        .build();
+      Request request = new Request.Builder()
+          .url(url)
+          .build();
 
       if (Utils.checkNetworkState(mContext)) {
-          Response response = client.newCall(request).execute();
-          return response.body().string();
+          try {
+              Response response = client.newCall(request).execute();
+              return response.body().string();
+          }
+          catch (SocketTimeoutException ste) {
+              Log.v(LOG_TAG, "RESPOSE " + ste);
+              Utils.setNetworkStatus(mContext, Utils.SERVER_UNAVAILABLE);
+          }
+          catch (UnknownHostException uhe) {
+              Log.v(LOG_TAG, "RESPOSE " + uhe);
+              Utils.setNetworkStatus(mContext, Utils.SERVER_NOT_FOUND);
+          }
       }
+
       return null;
   }
 
@@ -76,6 +90,7 @@ public class StockTaskService extends GcmTaskService{
     try {
       // Base URL for the Yahoo query
       urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
+      //urlStringBuilder.append("https://query.yahxxx.com/v1/public/yql?q=");
       urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol in (", "UTF-8"));
     }
     catch (UnsupportedEncodingException e) {

@@ -32,9 +32,10 @@ public class Utils {
     private static Context mContext;
     public static boolean showPercent = true;
 
-    public static final int NETWORK_STATUS_OK = 0;
-    public static final int NETWORK_STATUS_UNAVAILABLE = 1;
-    public static final int NETWORK_STATUS_UNKNOWN = 2;
+    public static final int NETWORK_OK = 0;
+    public static final int NETWORK_UNAVAILABLE = 1;
+    public static final int SERVER_UNAVAILABLE = 2;
+    public static final int SERVER_NOT_FOUND = 3;
 
     public static ArrayList quoteJsonToContentVals(Context context, String JSON) {
 
@@ -126,7 +127,7 @@ public class Utils {
         return builder.build();
     }
 
-    private static void sendBroadcastMessage(String message) {
+    public static void sendBroadcastMessage(String message) {
             Intent intent = new Intent(mContext.getString(R.string.broadcast_stock_search));
             // You can also include some extra data.
             intent.putExtra(mContext.getString(R.string.broadcast_stock_search_message), message);
@@ -138,15 +139,15 @@ public class Utils {
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            setNetworkStatus(context, NETWORK_STATUS_OK);
+            setNetworkStatus(context, NETWORK_OK);
             return true;
         }
         else {
-            setNetworkStatus(context, NETWORK_STATUS_UNAVAILABLE);
+            setNetworkStatus(context, NETWORK_UNAVAILABLE);
             return false;
         }
     }
-    private static void setNetworkStatus(Context context, int status) {
+    public static void setNetworkStatus(Context context, int status) {
 
         Log.v(LOG_TAG, "SETTING STATUS");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);

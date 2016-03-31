@@ -21,6 +21,8 @@
 
   <!-- MAIN SCREEN Status messages for network availability and last stock update -->
   <string name="no_network">Network Unavailable</string>
+  <string name="server_unavailable">Stock Server Unavailable</string>
+  <string name="no_server">Stock Server Not Found</string>
   <string name="last_update">Last updated at</string>
 
   <!-- ERROR MESSAGE toast when stock symbol not found -->

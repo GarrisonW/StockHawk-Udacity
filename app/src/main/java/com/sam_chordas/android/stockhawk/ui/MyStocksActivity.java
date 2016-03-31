@@ -44,108 +44,105 @@ import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallb
 
 import java.util.Set;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener{
 
-      private static String LOG_TAG = MyStocksActivity.class.getSimpleName();
-        /**
-         * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-         */
+    private static String LOG_TAG = MyStocksActivity.class.getSimpleName();
+    /**
+      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+    */
 
-      /**
-       * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-       */
-      private CharSequence mTitle;
-      private Intent mServiceIntent;
-      private ItemTouchHelper mItemTouchHelper;
-      private static final int CURSOR_LOADER_ID = 0;
-      private QuoteCursorAdapter mCursorAdapter;
-      private Context mContext;
-      private Cursor mCursor;
+    /**
+     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
+     */
+    private CharSequence mTitle;
+    private Intent mServiceIntent;
+    private ItemTouchHelper mItemTouchHelper;
+    private static final int CURSOR_LOADER_ID = 0;
+    private QuoteCursorAdapter mCursorAdapter;
+    private Context mContext;
+    private Cursor mCursor;
 
-      public TextView mNetworkStatusTextView;
-      public TextView mStatusTextView;
-      boolean isConnected;
+    FloatingActionButton fab;
 
-      @Override
-      protected void onCreate(Bundle savedInstanceState) {
-          super.onCreate(savedInstanceState);
-          mContext = this;
+    public TextView mNetworkStatusTextView;
+    public TextView mStatusTextView;
+    boolean isConnected;
 
-          LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this;
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mStockLoadReceiver,
                 new IntentFilter(mContext.getString(R.string.broadcast_stock_search)));
 
-          setContentView(R.layout.activity_my_stocks);
+        setContentView(R.layout.activity_my_stocks);
           // The intent service is for executing immediate pulls from the Yahoo API
           // GCMTaskService can only schedule tasks, they cannot execute immediately
-          mServiceIntent = new Intent(this, StockIntentService.class);
-          if (savedInstanceState == null){
+        mServiceIntent = new Intent(this, StockIntentService.class);
+        if (savedInstanceState == null){
             // Run the initialize task service so that some stocks appear upon an empty database
             mServiceIntent.putExtra("tag", "init");
             startService(mServiceIntent);
-          }
+        }
 
-          isConnected = Utils.checkNetworkState(mContext);
+        isConnected = Utils.checkNetworkState(mContext);
 
-          mNetworkStatusTextView = (TextView) findViewById(R.id.textview_net_status);
-          mStatusTextView = (TextView) findViewById(R.id.textview_status);
-          setStatusText();
+        mNetworkStatusTextView = (TextView) findViewById(R.id.textview_net_status);
+        mStatusTextView = (TextView) findViewById(R.id.textview_status);
+        setStatusText();
 
-          RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-          recyclerView.setLayoutManager(new LinearLayoutManager(this));
-          getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
-          mCursorAdapter = new QuoteCursorAdapter(this, null);
-          recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                  new RecyclerViewItemClickListener.OnItemClickListener() {
-                      @Override
-                      public void onItemClick(View v, int position) {
-                          //TODO:
-                          // do something on item click
-                      }
-                  }));
-          recyclerView.setAdapter(mCursorAdapter);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
-          FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        mCursorAdapter = new QuoteCursorAdapter(this, null);
+        recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                new RecyclerViewItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        //TODO:
+                        // do something on item click
+                    }
+                }));
+        recyclerView.setAdapter(mCursorAdapter);
 
-          if (isConnected) {
-              fab.attachToRecyclerView(recyclerView);
-              fab.setVisibility(FloatingActionButton.VISIBLE);
-              fab.setOnClickListener(new View.OnClickListener() {
-                  @Override public void onClick(View v)  {
-                      new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
-                              .content(R.string.content_test)
-                              .inputType(InputType.TYPE_CLASS_TEXT)
-                              .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                                  @Override
-                                  public void onInput(MaterialDialog dialog, CharSequence input) {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.attachToRecyclerView(recyclerView);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
+                        .content(R.string.content_test)
+                        .inputType(InputType.TYPE_CLASS_TEXT)
+                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
 
-                                      // On FAB click, receive user input. Make sure the stock doesn't already exist
-                                      // in the DB and proceed accordingly
-                                      Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
-                                              new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
-                                              new String[]{input.toString()}, null);
-                                      if (c.getCount() != 0) {
-                                          Toast toast =
-                                                  Toast.makeText(MyStocksActivity.this, R.string.error_stock_symbol_already_listed,
-                                                          Toast.LENGTH_LONG);
-                                          toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-                                          toast.show();
-                                          return;
-                                      } else {
-                                          // Add the stock to DB
-                                          mServiceIntent.putExtra("tag", "add");
-                                          mServiceIntent.putExtra("symbol", input.toString());
-                                          startService(mServiceIntent);
-                                      }
-                                  }
-                              })
-                              .show();
-                }
-                });
+                                // On FAB click, receive user input. Make sure the stock doesn't already exist
+                                // in the DB and proceed accordingly
+                                Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
+                                        new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
+                                        new String[]{input.toString()}, null);
+                                if (c.getCount() != 0) {
+                                    Toast toast =
+                                            Toast.makeText(MyStocksActivity.this, R.string.error_stock_symbol_already_listed,
+                                                    Toast.LENGTH_LONG);
+                                    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+                                    toast.show();
+                                    return;
+                                } else {
+                                    // Add the stock to DB
+                                    mServiceIntent.putExtra("tag", "add");
+                                    mServiceIntent.putExtra("symbol", input.toString());
+                                    startService(mServiceIntent);
+                                }
+                            }
+                        })
+                        .show();
             }
-            else {
-                fab.setVisibility(FloatingActionButton.INVISIBLE);
-            }
+        });
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
@@ -153,42 +150,45 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
         mTitle = getTitle();
         if (isConnected) {
-          long period = 3600L;
-          long flex = 10L;
-          String periodicTag = "periodic";
+            long period = 3600L;
+            long flex = 10L;
+            String periodicTag = "periodic";
 
-          // create a periodic task to pull stocks once every hour after the app has been opened. This
-          // is so Widget data stays up to date.
-          PeriodicTask periodicTask = new PeriodicTask.Builder()
-              .setService(StockTaskService.class)
-              .setPeriod(period)
-              .setFlex(flex)
-              .setTag(periodicTag)
-              .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-              .setRequiresCharging(false)
-              .build();
-          // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
-          // are updated.
-          GcmNetworkManager.getInstance(this).schedule(periodicTask);
+            // create a periodic task to pull stocks once every hour after the app has been opened. This
+            // is so Widget data stays up to date.
+            PeriodicTask periodicTask = new PeriodicTask.Builder()
+                .setService(StockTaskService.class)
+                .setPeriod(period)
+                .setFlex(flex)
+                .setTag(periodicTag)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+            // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
+            // are updated.
+            GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
-      public void restoreActionBar() {
+    public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
-      }
+    }
 
-      @Override
-      public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
           getMenuInflater().inflate(R.menu.my_stocks, menu);
           restoreActionBar();
           return true;
-      }
+    }
 
-      @Override
-      public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -206,9 +206,46 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         }
 
         return super.onOptionsItemSelected(item);
-      }
+    }
 
-      @Override
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.v(LOG_TAG, "ON RESUME");
+        setStatus();
+    }
+
+    public void setStatus() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (sharedPreferences != null) {
+            switch (sharedPreferences.getInt(getString(R.string.prefs_network_status), Utils.NETWORK_OK)) {
+                case Utils.SERVER_UNAVAILABLE:
+                    fab.setVisibility(FloatingActionButton.INVISIBLE);
+                    mNetworkStatusTextView.setVisibility(TextView.VISIBLE);
+                    mNetworkStatusTextView.setText(getString(R.string.server_unavailable));
+                    break;
+                case Utils.SERVER_NOT_FOUND:
+                    fab.setVisibility(FloatingActionButton.INVISIBLE);
+                    mNetworkStatusTextView.setVisibility(TextView.VISIBLE);
+                    mNetworkStatusTextView.setText(getString(R.string.no_server));
+                    break;
+                case Utils.NETWORK_UNAVAILABLE:
+                    fab.setVisibility(FloatingActionButton.INVISIBLE);
+                    mNetworkStatusTextView.setVisibility(TextView.VISIBLE);
+                    mNetworkStatusTextView.setText(getString(R.string.no_network));
+                    break;
+                case Utils.NETWORK_OK:
+                    fab.setVisibility(FloatingActionButton.VISIBLE);
+                    mNetworkStatusTextView.setVisibility(TextView.INVISIBLE);
+                    break;
+                default: break;
+            }
+            Log.v(LOG_TAG, "STTTTSSS: " + sharedPreferences.getInt(getString(R.string.prefs_network_status), Utils.NETWORK_OK));
+        }
+    }
+
+    @Override
       public Loader<Cursor> onCreateLoader(int id, Bundle args){
         // This narrows the return to only the stocks that are most current.
         return new CursorLoader(this, QuoteProvider.Quotes.CONTENT_URI,
@@ -244,7 +281,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mCursorAdapter.swapCursor(null);
       }
 
-
     private void setStatusText() {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -263,11 +299,14 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         theClock = hour + ":" + minute;
 
         String lastUpdated = getString(R.string.last_update);
-
-        if (isConnected) {
-            mNetworkStatusTextView.setVisibility(TextView.INVISIBLE);
-        }
         mStatusTextView.setText(lastUpdated + " " + theClock);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.v(LOG_TAG, "SHARED PREFERENCES CHANGED");
+        if (key.equals(getString(R.string.prefs_network_status))) {
+            setStatus();
+        }
+    }
 }
