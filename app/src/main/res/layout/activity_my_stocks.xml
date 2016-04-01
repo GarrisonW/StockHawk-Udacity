@@ -10,7 +10,6 @@
         style="@style/StatusTextStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_network"
         android:gravity="center"
         />
 
@@ -39,6 +38,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_white_24dp"
+            android:contentDescription="Add a stock by symbol"
             fab:fab_colorNormal="@color/material_blue_500"
             fab:fab_colorPressed="@color/material_blue_600"
             fab:fab_colorRipple="@color/ripple"
