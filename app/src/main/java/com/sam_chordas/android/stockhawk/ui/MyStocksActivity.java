@@ -211,8 +211,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     @Override
     protected void onResume() {
         super.onResume();
-
-        Log.v(LOG_TAG, "ON RESUME");
         setStatus();
     }
 
@@ -241,7 +239,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     break;
                 default: break;
             }
-            Log.v(LOG_TAG, "STTTTSSS: " + sharedPreferences.getInt(getString(R.string.prefs_network_status), Utils.NETWORK_OK));
         }
     }
 

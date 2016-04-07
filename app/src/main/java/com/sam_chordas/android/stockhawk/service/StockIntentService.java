@@ -11,6 +11,9 @@ import com.google.android.gms.gcm.TaskParams;
  */
 public class StockIntentService extends IntentService {
 
+  public static final String ACTION_DATA_UPDATED =
+          "com.sam_chordas.android.stockhawk.service.ACTION_DATA_UPDATED";
+
   public StockIntentService(){
     super(StockIntentService.class.getName());
   }

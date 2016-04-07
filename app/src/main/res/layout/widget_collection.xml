@@ -7,7 +7,7 @@
     android:padding="@dimen/widget_margin">
 
     <FrameLayout
-        android:id="@+id/widget"
+        android:id="@+id/widget_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
@@ -19,11 +19,13 @@
             android:text="@string/widget_title"
             android:textSize="@dimen/md_title_textsize"
             android:layout_gravity="center"/>
+
     </FrameLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content">
+
         <ListView
             android:id="@+id/widget_list"
             android:layout_width="match_parent"
@@ -31,6 +33,16 @@
             android:divider="@null"
             android:dividerHeight="0dp"
             tools:listitem="@layout/widget_collection_item"/>
+
+        <TextView
+            android:id="@+id/widget_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:text="@string/empty_forecast_list"/>
+
     </FrameLayout>
 
 </LinearLayout>

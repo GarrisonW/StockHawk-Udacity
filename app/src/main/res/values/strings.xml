@@ -1,7 +1,7 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
 
   <!-- NO TRANSLATION Application Name -->
-  <string name="app_name"><xliff:g>Stock Hawk</xliff:g></string>
+  <string name="app_name" translation="false"><xliff:g>Stock Hawk</xliff:g></string>
 
   <!-- MENU ITEM Settings -->
   <string name="action_settings">Settings</string>
@@ -28,16 +28,19 @@
   <!-- ERROR MESSAGE toast when stock symbol not found -->
   <string name="error_stock_symbol_not_found">Stock symbol not found</string>
 
+  <!-- Text for empty list view on collection widget  -->
+  <string name="empty_forecast_list">No Quotes Available</string>
+
   <!-- ERROR MESSAGE Adding a stock that was already in the users list of stocks -->
   <string name="error_stock_symbol_already_listed">This stock is already saved!"</string>
 
   <!-- NO TRANSLATION Local Broadcast identification tags -->
-  <string name="broadcast_stock_search"><xliff:g id="search_broadcast_id">com.sam.chordas.android.stockhawk</xliff:g></string>
-  <string name="broadcast_stock_search_message"><xliff:g id="search_result_broadcast_meassage_id">broadcast_stock_message</xliff:g></string>
+  <string name="broadcast_stock_search" translation="false"><xliff:g id="search_broadcast_id">com.sam.chordas.android.stockhawk</xliff:g></string>
+  <string name="broadcast_stock_search_message" translation="false"><xliff:g id="search_result_broadcast_meassage_id">broadcast_stock_message</xliff:g></string>
 
   <!-- NO TRANSLATION Preference ID tags  -->
-  <string name="prefs_network_status"><xliff:g id="preference_id_for_network_status">prefs_network_status</xliff:g></string>
-  <string name="pref_time_hour"><xliff:g id="preference_id_for_last_update_hour">pref_time_hour</xliff:g></string>
-  <string name="pref_time_min"><xliff:g id="preference_id_for_last_update_min">vpref_time_min</xliff:g></string>
+  <string name="prefs_network_status" translation="false"><xliff:g id="preference_id_for_network_status">prefs_network_status</xliff:g></string>
+  <string name="pref_time_hour" translation="false"><xliff:g id="preference_id_for_last_update_hour">pref_time_hour</xliff:g></string>
+  <string name="pref_time_min" translation="false"><xliff:g id="preference_id_for_last_update_min">vpref_time_min</xliff:g></string>
 
 </resources>

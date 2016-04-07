@@ -148,8 +148,6 @@ public class Utils {
         }
     }
     public static void setNetworkStatus(Context context, int status) {
-
-        Log.v(LOG_TAG, "SETTING STATUS");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(context.getString(R.string.prefs_network_status), status);

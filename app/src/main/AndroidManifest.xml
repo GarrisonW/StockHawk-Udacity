@@ -29,6 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name="com.sam_chordas.android.stockhawk.service.StockTaskService"
             android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
             android:exported="true">
@@ -36,25 +37,30 @@
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
             </intent-filter>
         </service>
+
         <service android:name="com.sam_chordas.android.stockhawk.service.StockIntentService" />
+
         <provider
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
             android:name="com.sam_chordas.android.stockhawk.data.generated.QuoteProvider"
             android:exported="false"/>
+
         <receiver
-            android:name=".widget.QuoteWidgetProvider"
-            android:label="@string/widget_title">
+            android:name=".widget.QuoteWidgetRemoteProvider"
+            android:label="@string/widget_title"
+            android:enabled="@bool/widget_detail_enabled" >
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.sam_chordas.android.stockhawk.ACTION_DATA_UPDATED" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info"/>
+                android:resource="@xml/widget_info_collection" />
         </receiver>
 
         <service
             android:name=".widget.QuoteWidgetRemoteViewsService"
-            android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS"/>
+
     </application>
 
 </manifest>

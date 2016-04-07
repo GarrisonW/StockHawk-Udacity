@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:id="@+id/widget_list_item"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="@drawable/touch_selector_dark"
-             android:minHeight="?android:attr/listPreferredItemHeight"
-             android:padding="@dimen/widget_margin">
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/touch_selector_dark"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="@dimen/widget_margin">
 
     <TextView
         android:id="@+id/stock_symbol"
@@ -16,6 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         android:gravity="left|center_vertical"
+
+        android:text="GOOG"
+
         tools:text="GOOG"
         />
 
@@ -29,7 +32,10 @@
         android:background="@drawable/percent_change_pill"
         android:paddingLeft="3dp"
         android:paddingRight="3dp"
+
+        android:text="100%"
+
         tools:text="100%"
         />
 
-</FrameLayout>
+</LinearLayout>
