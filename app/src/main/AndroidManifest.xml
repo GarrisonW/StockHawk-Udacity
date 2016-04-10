@@ -47,8 +47,7 @@
 
         <receiver
             android:name=".widget.QuoteWidgetRemoteProvider"
-            android:label="@string/widget_title"
-            android:enabled="@bool/widget_detail_enabled" >
+            android:label="@string/widget_title">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.sam_chordas.android.stockhawk.ACTION_DATA_UPDATED" />
@@ -59,6 +58,7 @@
 
         <service
             android:name=".widget.QuoteWidgetRemoteViewsService"
+            android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS"/>
 
     </application>
