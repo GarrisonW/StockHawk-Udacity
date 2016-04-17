@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
@@ -15,13 +16,13 @@ import android.widget.RemoteViewsService;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.sam_chordas.android.stockhawk.rest.Utils;
 
 /**
  * Created by Garrison on 4/1/2016.
  */
 public class QuoteWidgetRemoteViewsService extends RemoteViewsService {
-
-    public final String LOG_TAG = QuoteWidgetRemoteViewsService.class.getSimpleName();
+    public static final String LOG_TAG = QuoteWidgetRemoteViewsService.class.getSimpleName();
 
     private static final String[] QUOTE_COLUMNS = {
             QuoteColumns._ID,
@@ -41,36 +42,25 @@ public class QuoteWidgetRemoteViewsService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
 
-        Log.v(LOG_TAG, "FEMOVTE VIEWS FACTORY");
-
         return new RemoteViewsFactory() {
             private Cursor data = null;
 
             @Override
-            public void onCreate() {
-                Log.v(LOG_TAG, "VIEWS FACTORY CREATE");
-            }
+            public void onCreate() { }
 
             @Override
             public void onDataSetChanged() {
                 if (data != null) {
                     data.close();
                 }
-
-                Log.v(LOG_TAG, "SATASET CHANGED");
                 final long identityToken = Binder.clearCallingIdentity();
-
+Log.v(LOG_TAG, "DATASET CHANGED");
                 data = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                         QUOTE_COLUMNS,
                         null,
                         null,
                         null);
-
-                if (data != null)
-                    Log.v(LOG_TAG, "NO NO NO NULL");
-                else
-                    Log.v(LOG_TAG, "NULL NULL");
-
+if (data !=null) Log.v(QuoteWidgetRemoteViewsService.class.getSimpleName(), "COUNT= " + data.getCount());
                 Binder.restoreCallingIdentity(identityToken);
             }
 
@@ -93,10 +83,12 @@ public class QuoteWidgetRemoteViewsService extends RemoteViewsService {
                     return null;
                 }
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.widget_collection_item);
- Log.v(LOG_TAG, "SETTING VIEW DATA: " + getPackageName() + "  " +  data.getString(INDEX_SYMBOL));
                 views.setTextViewText(R.id.widget_stock_symbol, data.getString(INDEX_SYMBOL));
                 views.setTextViewText(R.id.widget_bid_price, data.getString(INDEX_BIDPRICE));
-                views.setTextViewText(R.id.widget_change, data.getString(INDEX_CHANGE));
+                if (Utils.showPercent)
+                    views.setTextViewText(R.id.widget_change, data.getString(INDEX_PERCENT_CHANGE));
+                else
+                    views.setTextViewText(R.id.widget_change, data.getString(INDEX_CHANGE));
 
                 //final Intent fillInIntent = new Intent();
                 //fillInIntent.setData(QuoteProvider.Quotes.CONTENT_URI);

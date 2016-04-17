@@ -41,6 +41,6 @@
   <!-- NO TRANSLATION Preference ID tags  -->
   <string name="prefs_network_status" translation="false"><xliff:g id="preference_id_for_network_status">prefs_network_status</xliff:g></string>
   <string name="pref_time_hour" translation="false"><xliff:g id="preference_id_for_last_update_hour">pref_time_hour</xliff:g></string>
-  <string name="pref_time_min" translation="false"><xliff:g id="preference_id_for_last_update_min">vpref_time_min</xliff:g></string>
+  <string name="pref_time_min" translation="false"><xliff:g id="preference_id_for_last_update_min">pref_time_min</xliff:g></string>
 
 </resources>

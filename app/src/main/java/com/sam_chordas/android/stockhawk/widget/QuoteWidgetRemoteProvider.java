@@ -15,14 +15,13 @@ import android.widget.RemoteViews;
 
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.service.StockIntentService;
+import com.sam_chordas.android.stockhawk.service.StockTaskService;
 import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 
 /**
  * Created by Garrison on 4/3/2016.
  */
 public class QuoteWidgetRemoteProvider extends AppWidgetProvider {
-
-    public static final String LOG_TAG = QuoteWidgetRemoteProvider.class.getSimpleName();
 
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Perform this loop procedure for each App Widget that belongs to this provider
@@ -46,8 +45,6 @@ public class QuoteWidgetRemoteProvider extends AppWidgetProvider {
                     .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
 
-
- Log.v(LOG_TAG, "UPDATE APP WIDGET ");
             // Tell the AppWidgetManager to perform an update on the current app widget
             views.setEmptyView(R.id.widget_list, R.id.widget_empty);
             appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -58,13 +55,11 @@ public class QuoteWidgetRemoteProvider extends AppWidgetProvider {
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         super.onReceive(context, intent);
-
-        Log.v(LOG_TAG, "onRECEIBE");
-        //if (StockIntentService.ACTION_DATA_UPDATED.equals(intent.getAction())) {
+Log.v(QuoteWidgetRemoteProvider.class.getSimpleName(), "WE BE HERE LISTENING MY FIREND");
+        if (StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                    new ComponentName(context, getClass()));
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, getClass()));
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
-        //}
+        }
     }
 }

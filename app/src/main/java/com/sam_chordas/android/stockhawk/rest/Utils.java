@@ -83,6 +83,42 @@ public class Utils {
         return batchOperations;
     }
 
+    public static ArrayList detailsJsonVals(Context context, String JSON) {
+
+        mContext = context;
+
+        ArrayList<String> closeValuesArray = new ArrayList<>();
+        JSONObject jsonObject = null;
+        JSONArray  resultsArray = null;
+
+        Log.i(LOG_TAG, "GET DETAIL JSON: " +JSON);
+
+        try {
+            jsonObject = new JSONObject(JSON);
+
+            if (jsonObject != null && jsonObject.length() != 0) {
+                jsonObject = jsonObject.getJSONObject("query");
+                resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
+
+                if (resultsArray != null && resultsArray.length() != 0) {
+                    for (int i = 0; i < resultsArray.length(); i++) {
+                        jsonObject = resultsArray.getJSONObject(i);
+                        if (jsonObject.getString("Close") == "null") {
+                            //TODO:  No daily values available instead of not found
+                            sendBroadcastMessage(mContext.getString(R.string.error_stock_symbol_not_found));
+                            break;
+                        }
+                        else
+                            closeValuesArray.add(jsonObject.getString("Close"));
+                    }
+                }
+            }
+        } catch (JSONException e){
+            Log.e(LOG_TAG, "String to JSON failed: " + e);
+        }
+        return closeValuesArray;
+    }
+
     public static String truncateBidPrice(String bidPrice) {
         bidPrice = String.format("%.2f", Float.parseFloat(bidPrice));
         return bidPrice;

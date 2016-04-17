@@ -92,7 +92,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mStatusTextView = (TextView) findViewById(R.id.textview_status);
         setStatusText();
 
-
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
@@ -103,7 +102,12 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     @Override
                     public void onItemClick(View v, int position) {
                         //TODO:
-                        // do something on item click
+                        mCursor.moveToPosition(position);
+                        int symbolIndex = mCursor.getColumnIndex(QuoteColumns.SYMBOL);
+                        String symbol = mCursor.getString(symbolIndex);
+                        Intent detailIntent = new Intent(mContext, StockDetailActivity.class);
+                        detailIntent.putExtra("symb", symbol);
+                        startActivity(detailIntent);
                     }
                 }));
         recyclerView.setAdapter(mCursorAdapter);
@@ -150,8 +154,10 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
         mTitle = getTitle();
         if (isConnected) {
-            long period = 3600L;
-            long flex = 10L;
+            //long period = 3600L;
+            //long flex = 10L;
+            long period = 300L;
+            long flex = 5L;
             String periodicTag = "periodic";
 
             // create a periodic task to pull stocks once every hour after the app has been opened. This
@@ -264,7 +270,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         super.onDestroy();
     }
 
-    // handler for received Intents for the "my-event" event
     private BroadcastReceiver mStockLoadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -301,9 +306,12 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.v(LOG_TAG, "SHARED PREFERENCES CHANGED");
+        Log.v(LOG_TAG, "SHARED PREFERENCES CHANGED: " + key);
         if (key.equals(getString(R.string.prefs_network_status))) {
             setStatus();
+        }
+        else if(key.equals(getString(R.string.pref_time_min))) {
+            setStatusText();
         }
     }
 }
