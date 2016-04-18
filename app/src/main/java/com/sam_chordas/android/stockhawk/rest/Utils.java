@@ -18,6 +18,9 @@ import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,11 +86,11 @@ public class Utils {
         return batchOperations;
     }
 
-    public static ArrayList detailsJsonVals(Context context, String JSON) {
+    public static Set<String> detailsJsonVals(Context context, String JSON) {
 
         mContext = context;
 
-        ArrayList<String> closeValuesArray = new ArrayList<>();
+        Set<String> closeValuesSet = new HashSet<String>();
         JSONObject jsonObject = null;
         JSONArray  resultsArray = null;
 
@@ -109,14 +112,14 @@ public class Utils {
                             break;
                         }
                         else
-                            closeValuesArray.add(jsonObject.getString("Close"));
+                            closeValuesSet.add(jsonObject.getString("Close"));
                     }
                 }
             }
         } catch (JSONException e){
             Log.e(LOG_TAG, "String to JSON failed: " + e);
         }
-        return closeValuesArray;
+        return closeValuesSet;
     }
 
     public static String truncateBidPrice(String bidPrice) {

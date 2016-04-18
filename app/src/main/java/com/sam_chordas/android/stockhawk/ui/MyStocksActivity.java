@@ -268,6 +268,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private BroadcastReceiver mStockLoadReceiver = new BroadcastReceiver() {
@@ -292,8 +293,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         String minute = "00";
 
         if (sharedPreferences != null) {
-            hour = sharedPreferences.getInt(getString(R.string.pref_time_hour), 0);
-            min = sharedPreferences.getInt(getString(R.string.pref_time_min), 0);
+            hour = sharedPreferences.getInt(getString(R.string.prefs_time_hour), 0);
+            min = sharedPreferences.getInt(getString(R.string.prefs_time_min), 0);
             minute = String.valueOf(min);
             if (min < 10)
                 minute = "0" + minute;
@@ -310,7 +311,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         if (key.equals(getString(R.string.prefs_network_status))) {
             setStatus();
         }
-        else if(key.equals(getString(R.string.pref_time_min))) {
+        else if(key.equals(getString(R.string.prefs_time_min))) {
             setStatusText();
         }
     }

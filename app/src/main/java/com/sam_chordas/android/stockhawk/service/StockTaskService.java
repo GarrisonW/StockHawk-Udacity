@@ -7,6 +7,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
@@ -31,7 +32,10 @@ import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by sam_chordas on 9/30/15.
@@ -179,12 +183,17 @@ Log.v(LOG_TAG, "ON RUN TASK");
         if (getResponse != null) {
             result = GcmNetworkManager.RESULT_SUCCESS;
             if (params.getTag().equals("chart")) {
-                // Obtain array for charting
-                Log.v(LOG_TAG, "HERE HERE HERE ERHERER");
-                ArrayList<String> chartStockValues = Utils.detailsJsonVals(mContext, getResponse);
-                for (int i=0; i < chartStockValues.size(); i++) {
-                    Log.v(LOG_TAG, "VALUE AT " + i + ": " + chartStockValues.get(i) );
-                }
+                // Obtain set for charting
+                Set<String> chartStockValuesSet = Utils.detailsJsonVals(mContext, getResponse);
+                if (chartStockValuesSet == null)
+                    Log.v(LOG_TAG, "NO VALUES IN STET FROM UTYILLLSLLL");
+                else
+                    Log.v(LOG_TAG, "OKOKOKOKOKOKOK");
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putStringSet(mContext.getString(R.string.prefs_detail_string_set), chartStockValuesSet);
+                editor.apply();
             }
             else {
                 //  Load stock quotes into database
@@ -219,8 +228,8 @@ Log.v(LOG_TAG, "ON RUN TASK");
     int hour = calendar.get(Calendar.HOUR_OF_DAY);
     int min = calendar.get(Calendar.MINUTE);
 
-    editor.putInt(context.getString(R.string.pref_time_hour), hour);
-    editor.putInt(context.getString(R.string.pref_time_min), min);
+    editor.putInt(context.getString(R.string.prefs_time_hour), hour);
+    editor.putInt(context.getString(R.string.prefs_time_min), min);
 
     updateWidgets();
     editor.apply();
