@@ -46,7 +46,7 @@ public class StockTaskService extends GcmTaskService{
 
   public static String LOG_TAG = StockTaskService.class.getSimpleName();
 
-    public static final String ACTION_DATA_UPDATED =
+  public static final String ACTION_DATA_UPDATED =
             "com.sam_chordas.android.stockhawk.app.ACTION_DATA_UPDATED";
 
   private OkHttpClient client = new OkHttpClient();
@@ -90,26 +90,18 @@ public class StockTaskService extends GcmTaskService{
     }
 
     StringBuilder urlStringBuilder = new StringBuilder();
-Log.v(LOG_TAG, "ON RUN TASK");
     try {
+
         if (params.getTag().equals("chart")) {
             // Base URL for the Yahoo stock detal query
             urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
             urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.historicaldata where symbol = ", "UTF-8"));
-            Log.v(LOG_TAG, "SERVICE SYMB: " + params.getExtras().getString("symbol"));
             urlStringBuilder.append(URLEncoder.encode("\"" + params.getExtras().getString("symbol") + "\"", "UTF-8"));
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_YEAR, -1);
-            int y = calendar.get(Calendar.YEAR);
-            int m = calendar.get(Calendar.MONTH) + 1;
-            int d = calendar.get(Calendar.DAY_OF_MONTH);
-            String startDate = y + "-" + m + "-" + d;
+            String endDate = getStringDate(calendar);
             calendar.add(Calendar.DAY_OF_YEAR, -7);
-            y = calendar.get(Calendar.YEAR);
-            m = calendar.get(Calendar.MONTH) + 1;
-            d = calendar.get(Calendar.DAY_OF_MONTH);
-            String endDate = y + "-" + m + "-" + d;
-
+            String startDate = getStringDate(calendar);
             urlStringBuilder.append(URLEncoder.encode(" and startDate =\"" + startDate + "\" and endDate = \"" + endDate + "\"", "UTF-8"));
         }
         else {
@@ -117,8 +109,6 @@ Log.v(LOG_TAG, "ON RUN TASK");
             urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
             urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol in (", "UTF-8"));
         }
-
-
     }
     catch (UnsupportedEncodingException e) {
       e.printStackTrace();
@@ -176,8 +166,6 @@ Log.v(LOG_TAG, "ON RUN TASK");
 
     if (urlStringBuilder != null){
       urlString = urlStringBuilder.toString();
-
-        Log.v(LOG_TAG, "HERE YOU GO: " + urlStringBuilder.toString());
       try {
         getResponse = fetchData(urlString);
         if (getResponse != null) {
@@ -185,11 +173,6 @@ Log.v(LOG_TAG, "ON RUN TASK");
             if (params.getTag().equals("chart")) {
                 // Obtain set for charting
                 Set<String> chartStockValuesSet = Utils.detailsJsonVals(mContext, getResponse);
-                if (chartStockValuesSet == null)
-                    Log.v(LOG_TAG, "NO VALUES IN STET FROM UTYILLLSLLL");
-                else
-                    Log.v(LOG_TAG, "OKOKOKOKOKOKOK");
-
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putStringSet(mContext.getString(R.string.prefs_detail_string_set), chartStockValuesSet);
@@ -238,6 +221,20 @@ Log.v(LOG_TAG, "ON RUN TASK");
     private void updateWidgets() {
         Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(mContext.getPackageName());
         mContext.sendBroadcast(dataUpdatedIntent);
+    }
+
+    public String getStringDate(Calendar calendar) {
+        int y = calendar.get(Calendar.YEAR);
+        int m = calendar.get(Calendar.MONTH) + 1;
+        int d = calendar.get(Calendar.DAY_OF_MONTH);
+        String ms = Integer.toString(m);
+        String ds = Integer.toString(d);
+        if (m < 10)
+            ms = "0" + m;
+        if (d < 10)
+            ds = "0" + d;
+        String strimgDate = y + "-" + ms + "-" + ds;
+        return strimgDate;
     }
 
 }
