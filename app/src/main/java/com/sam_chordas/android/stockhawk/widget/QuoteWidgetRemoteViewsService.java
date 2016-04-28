@@ -17,6 +17,7 @@ import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.Utils;
+import com.sam_chordas.android.stockhawk.ui.StockDetailActivity;
 
 /**
  * Created by Garrison on 4/1/2016.
@@ -52,15 +53,16 @@ public class QuoteWidgetRemoteViewsService extends RemoteViewsService {
             public void onDataSetChanged() {
                 if (data != null) {
                     data.close();
+                    data=null;
                 }
                 final long identityToken = Binder.clearCallingIdentity();
-Log.v(LOG_TAG, "DATASET CHANGED");
+
                 data = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                         QUOTE_COLUMNS,
-                        null,
-                        null,
+                        QuoteColumns.ISCURRENT + " = ?",
+                        new String[]{"1"},
                         null);
-if (data !=null) Log.v(QuoteWidgetRemoteViewsService.class.getSimpleName(), "COUNT= " + data.getCount());
+
                 Binder.restoreCallingIdentity(identityToken);
             }
 
@@ -90,9 +92,9 @@ if (data !=null) Log.v(QuoteWidgetRemoteViewsService.class.getSimpleName(), "COU
                 else
                     views.setTextViewText(R.id.widget_change, data.getString(INDEX_CHANGE));
 
-                //final Intent fillInIntent = new Intent();
-                //fillInIntent.setData(QuoteProvider.Quotes.CONTENT_URI);
-                //views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
+
+                final Intent fillInIntent = new Intent();
+                views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
 
                 return views;
             }

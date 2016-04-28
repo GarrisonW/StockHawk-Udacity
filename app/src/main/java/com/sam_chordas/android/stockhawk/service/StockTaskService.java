@@ -7,11 +7,8 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
@@ -25,16 +22,10 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -233,8 +224,8 @@ public class StockTaskService extends GcmTaskService{
             ms = "0" + m;
         if (d < 10)
             ds = "0" + d;
-        String strimgDate = y + "-" + ms + "-" + ds;
-        return strimgDate;
+        String stringDate = y + "-" + ms + "-" + ds;
+        return stringDate;
     }
 
 }

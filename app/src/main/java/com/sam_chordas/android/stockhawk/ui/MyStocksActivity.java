@@ -9,8 +9,6 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +18,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,18 +39,8 @@ import com.google.android.gms.gcm.Task;
 import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
 
-import java.util.Set;
-
 public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener{
 
-    private static String LOG_TAG = MyStocksActivity.class.getSimpleName();
-    /**
-      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-    */
-
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
     private CharSequence mTitle;
     private Intent mServiceIntent;
     private ItemTouchHelper mItemTouchHelper;
@@ -101,7 +88,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                 new RecyclerViewItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int position) {
-                        //TODO:
                         mCursor.moveToPosition(position);
                         int symbolIndex = mCursor.getColumnIndex(QuoteColumns.SYMBOL);
                         String symbol = mCursor.getString(symbolIndex);
@@ -135,7 +121,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                                                     Toast.LENGTH_LONG);
                                     toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                                     toast.show();
-                                    return;
                                 } else {
                                     // Add the stock to DB
                                     mServiceIntent.putExtra("tag", "add");
@@ -154,10 +139,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
         mTitle = getTitle();
         if (isConnected) {
-            //long period = 3600L;
-            //long flex = 10L;
-            long period = 300L;
-            long flex = 5L;
+            long period = 3600L;
+            long flex = 10L;
             String periodicTag = "periodic";
 
             // create a periodic task to pull stocks once every hour after the app has been opened. This
@@ -307,7 +290,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.v(LOG_TAG, "SHARED PREFERENCES CHANGED: " + key);
         if (key.equals(getString(R.string.prefs_network_status))) {
             setStatus();
         }

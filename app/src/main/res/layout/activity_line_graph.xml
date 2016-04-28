@@ -5,30 +5,17 @@
     android:background="#beca52">
 
     <com.db.chart.view.LineChartView
-        xmlns:chart="http://schemas.android.com/apk/res-auto"
         android:id="@+id/linechart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     />
 
-
-<!--
-        chart:chart_shadowDx="0dp"
-        chart:chart_shadowDy="0dp"
-        chart:chart_shadowRadius="0dp"
-        chart:chart_shadowColor="color"
-        chart:chart_fontSize="0dp"
-        chart:chart_typeface="typeface"
-        chart:chart_axisBorderSpacing="0dp"
-        chart:chart_axisThickness="0dp"
-        chart:chart_axisTopSpacing="0dp"
-        chart:chart_axisColor="color"
-        chart:chart_axisX="boolean"
-        chart:chart_label="boolean"
-        chart:chart_labelColor="color"
-        -->
-
-
-
+    <TextView
+        android:id="@+id/textview_detail_net_status"
+        style="@style/StatusTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+    />
 
 </FrameLayout>

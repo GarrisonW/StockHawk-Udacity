@@ -55,7 +55,6 @@ public class QuoteWidgetRemoteProvider extends AppWidgetProvider {
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         super.onReceive(context, intent);
-Log.v(QuoteWidgetRemoteProvider.class.getSimpleName(), "WE BE HERE LISTENING MY FIREND");
         if (StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, getClass()));

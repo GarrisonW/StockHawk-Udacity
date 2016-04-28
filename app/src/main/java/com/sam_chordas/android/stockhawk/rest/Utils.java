@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -15,8 +14,6 @@ import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,11 +42,8 @@ public class Utils {
         mContext = context;
 
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
-        JSONObject jsonObject = null;
-        JSONArray resultsArray = null;
-
-        Log.i(LOG_TAG, "GET FB: " +JSON);
-
+        JSONObject jsonObject;
+        JSONArray resultsArray;
         try {
           jsonObject = new JSONObject(JSON);
 
@@ -58,10 +52,8 @@ public class Utils {
             int count = Integer.parseInt(jsonObject.getString("count"));
             if (count == 1) {
               jsonObject = jsonObject.getJSONObject("results").getJSONObject("quote");
-              if (jsonObject.getString("Ask") == "null") {
-                Log.v(LOG_TAG, "SYMBOL NOT FOUND");
+              if (jsonObject.getString("Ask").equals("null"))
                 sendBroadcastMessage(mContext.getString(R.string.error_stock_symbol_not_found));
-              }
               else
                 batchOperations.add(buildBatchOperation(jsonObject));
             }
@@ -70,7 +62,7 @@ public class Utils {
               if (resultsArray != null && resultsArray.length() != 0) {
                 for (int i = 0; i < resultsArray.length(); i++) {
                     jsonObject = resultsArray.getJSONObject(i);
-                    if (jsonObject.getString("Ask") == "null") {
+                    if (jsonObject.getString("Ask").equals("null")) {
                         sendBroadcastMessage(mContext.getString(R.string.error_stock_symbol_not_found));
                         break;
                     }
@@ -90,11 +82,9 @@ public class Utils {
 
         mContext = context;
 
-        Set<String> closeValuesSet = new HashSet<String>();
-        JSONObject jsonObject = null;
-        JSONArray  resultsArray = null;
-
-        Log.i(LOG_TAG, "GET DETAIL JSON: " +JSON);
+        Set<String> closeValuesSet = new HashSet<>();
+        JSONObject jsonObject;
+        JSONArray  resultsArray;
 
         try {
             jsonObject = new JSONObject(JSON);
@@ -108,8 +98,7 @@ public class Utils {
                     if (resultsArray != null && resultsArray.length() != 0) {
                         for (int i = 0; i < resultsArray.length(); i++) {
                             jsonObject = resultsArray.getJSONObject(i);
-                            if (jsonObject.getString("Close") == "null") {
-                                //TODO:  No daily values available instead of not found
+                            if (jsonObject.getString("Close").equals("null")) {
                                 sendBroadcastMessage(mContext.getString(R.string.error_no_data_available));
                                 break;
                             } else

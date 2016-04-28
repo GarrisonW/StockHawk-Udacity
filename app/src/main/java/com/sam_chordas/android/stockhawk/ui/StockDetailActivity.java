@@ -8,15 +8,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.db.chart.model.LineSet;
-import com.db.chart.model.Point;
 import com.db.chart.view.LineChartView;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.rest.Utils;
 import com.sam_chordas.android.stockhawk.service.StockIntentService;
-
-import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -24,10 +23,11 @@ import java.util.Set;
  */
 public class StockDetailActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String LOG_TAG = StockDetailActivity.class.getSimpleName();
+    public final static String LOG_TAG = StockDetailActivity.class.getSimpleName();
 
     public Context mContext;
     public Intent mServiceIntent;
+    TextView mStatusText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +38,7 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
         boolean isConnected = Utils.checkNetworkState(mContext);
 
         setTitle(R.string.title_detail_activity);
+        mStatusText = (TextView) findViewById(R.id.textview_detail_net_status);
 
         if (isConnected) {
             // Call to service to obtain charting values
@@ -47,20 +48,20 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
             String symbol = thisIntent.getStringExtra("symb");
             mServiceIntent.putExtra("symbol", symbol);
             startService(mServiceIntent);
+            mStatusText.setVisibility(View.INVISIBLE);
         }
-        else
-            Log.v(LOG_TAG, "NO NEtowrkd for charting");
-
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences != null) {
+            Log.v(LOG_TAG, "LOAD FROM RESUME");
             loadData(sharedPreferences);
         }
     }
@@ -68,15 +69,31 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.v(LOG_TAG, "PREFCHANGE");
         if (key.equals(getString(R.string.prefs_detail_string_set))) {
             loadData(sharedPreferences);
+        }
+        if (key.equals(getString(R.string.prefs_network_status))) {
+            mStatusText.setVisibility(TextView.VISIBLE);
+            switch (sharedPreferences.getInt(getString(R.string.prefs_network_status), Utils.NETWORK_OK)) {
+                case Utils.SERVER_UNAVAILABLE:
+                    mStatusText.setText(getString(R.string.server_unavailable));
+                    break;
+                case Utils.SERVER_NOT_FOUND:
+                    mStatusText.setText(getString(R.string.no_server));
+                    break;
+                case Utils.NETWORK_UNAVAILABLE:
+                    mStatusText.setText(getString(R.string.no_network));
+                    break;
+                case Utils.NETWORK_OK:
+                    mStatusText.setVisibility(TextView.INVISIBLE);
+                    break;
+                default: break;
+            }
         }
     }
 
@@ -84,23 +101,22 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
 
         Set<String> valuesSet = sharedPreferences.getStringSet(mContext.getString(R.string.prefs_detail_string_set), null);
         if (valuesSet !=null) {
+            mStatusText.setVisibility(View.INVISIBLE);
             String[] labelArray = valuesSet.toArray(new String[valuesSet.size()]);
-            Log.v(LOG_TAG, "SIXE " + labelArray.length);
+            for (int i=0; i < labelArray.length; i++)
+                Log.v(LOG_TAG, "label i: " + i + " " + labelArray[i]);
             int max = 0;
             int min = 0;
             LineChartView lineChartView = (LineChartView) findViewById(R.id.linechart);
             LineSet lineSet = new LineSet();
             for (int i = 0; i < labelArray.length; i++) {
-                Log.v(LOG_TAG, "NEW STUFF: " + labelArray[i]);
                 float f = Float.parseFloat(labelArray[i]);
                 Float tempFloat = new Float(f);
-
-                Log.v(LOG_TAG, "INTERGER: " + tempFloat.intValue());
                 if (max < tempFloat.intValue())
                     max = tempFloat.intValue();
                 if (min == 0 || min > tempFloat.intValue())
                     min = tempFloat.intValue();
-                lineSet.addPoint(new Point(labelArray[i], f));
+                lineSet.addPoint(labelArray[i], f);
             }
 
             lineSet.setColor(Color.parseColor("#758cbb"))
@@ -113,7 +129,9 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
             lineChartView.addData(lineSet);
             lineChartView.show();
         }
-        else
-            Log.v(LOG_TAG, "NO VALUES IN STET");
+        else {
+            mStatusText.setVisibility(View.VISIBLE);
+            mStatusText.setText(getString(R.string.error_no_data_available));
+        }
     }
 }
