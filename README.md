@@ -10,11 +10,11 @@ This was an existing application that was lacking in some key features and wsa i
 
 As part of the requirements for the class project, the following was added:
 
-*Bug Fix: Application no longer crashes when a non-existant stock symbol is added.
-*Network isses (no connection, server down, no data) intercepted and reported as status
-*Stock history detail (closing price last 5 work days) activity added using WilliamsChart
-*Collection widget created
-*Preperations for Egyption version added
+ * Bug Fix: Application no longer crashes when a non-existant stock symbol is added.
+ * Network isses (no connection, server down, no data) intercepted and reported as status
+ * Stock history detail (closing price last 5 work days) activity added using WilliamsChart
+ * Collection widget created
+ * Preperations for Egyption version added
 
 ## Issues
 
