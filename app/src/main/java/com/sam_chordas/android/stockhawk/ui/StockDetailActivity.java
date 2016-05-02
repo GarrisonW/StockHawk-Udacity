@@ -23,8 +23,6 @@ import java.util.Set;
  */
 public class StockDetailActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public final static String LOG_TAG = StockDetailActivity.class.getSimpleName();
-
     public Context mContext;
     public Intent mServiceIntent;
     TextView mStatusText;
@@ -61,7 +59,6 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
         super.onResume();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences != null) {
-            Log.v(LOG_TAG, "LOAD FROM RESUME");
             loadData(sharedPreferences);
         }
     }
@@ -103,8 +100,6 @@ public class StockDetailActivity extends AppCompatActivity implements SharedPref
         if (valuesSet !=null) {
             mStatusText.setVisibility(View.INVISIBLE);
             String[] labelArray = valuesSet.toArray(new String[valuesSet.size()]);
-            for (int i=0; i < labelArray.length; i++)
-                Log.v(LOG_TAG, "label i: " + i + " " + labelArray[i]);
             int max = 0;
             int min = 0;
             LineChartView lineChartView = (LineChartView) findViewById(R.id.linechart);
